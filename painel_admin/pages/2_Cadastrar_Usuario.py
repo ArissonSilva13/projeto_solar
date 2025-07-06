@@ -11,7 +11,8 @@ from notificacoes import NotificacaoRealTime
 
 ARQUIVO_USUARIOS = "painel_admin/usuarios.yaml"
 
-st.title(" Cadastro de Novo Usuário")
+st.title("👤 Cadastrar Usuário")
+st.info("⚠️ Esta tela é exclusiva para administradores do sistema")
 
 notificacao_system = NotificacaoRealTime()
 

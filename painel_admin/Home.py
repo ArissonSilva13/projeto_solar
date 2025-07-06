@@ -251,8 +251,8 @@ if st.session_state.get("logged_in"):
             st.switch_page("pages/4_Exportacao.py")
 
     with col5:
-        if st.button("⚙️ Configurações", use_container_width=True):
-            st.switch_page("pages/2_Configuracoes.py")
+        if st.button("👤 Cadastrar Usuário", use_container_width=True):
+            st.switch_page("pages/2_Cadastrar_Usuario.py")
 
     # 🎯 Seção de Status do Sistema
     st.markdown("---")
@@ -290,9 +290,9 @@ if st.session_state.get("logged_in"):
     with col4:
         st.markdown("""
         <div style="text-align: center; padding: 10px; border-radius: 5px; background-color: white; border: 1px solid #e0e0e0;">
-            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #6c757d;">⚙️ Configurações</p>
-            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #28a745;">Atualizadas</p>
-            <small style="color: #666;">OK</small>
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #6c757d;">👤 Usuários</p>
+            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #28a745;">Ativo</p>
+            <small style="color: #666;">Sistema</small>
         </div>
         """, unsafe_allow_html=True)
 
@@ -300,7 +300,7 @@ if st.session_state.get("logged_in"):
     st.sidebar.success("Você está logado.")
     st.sidebar.markdown("### 🧭 Navegação")
     st.sidebar.page_link("pages/1_Simulador.py", label="🔋 Simulador")
-    st.sidebar.page_link("pages/2_Configuracoes.py", label="⚙️ Configurações")
+    st.sidebar.page_link("pages/2_Cadastrar_Usuario.py", label="👤 Cadastrar Usuário")
     st.sidebar.page_link("pages/3_Relatorios.py", label="📊 Relatórios")
     st.sidebar.page_link("pages/5_Alertas.py", label="🚨 Alertas")
     st.sidebar.page_link("pages/4_Exportacao.py", label="📥 Exportação")
