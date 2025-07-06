@@ -1,0 +1,20 @@
+# --- Backend (FastAPI + JWT + banco de dados)
+fastapi
+uvicorn[standard]
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]
+
+# --- Painel administrativo (Streamlit + autenticação)
+streamlit
+streamlit-authenticator
+requests
+
+# --- Simulador (dados e gráficos)
+pandas
+numpy
+matplotlib
+
+# --- Dependências para funcionalidades de Ajustes
+openpyxl  # Para exportação Excel
+pyyaml    # Para manipulação de arquivos YAML

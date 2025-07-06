@@ -1,0 +1,5 @@
+usernames:
+  admin:
+    email: admin@solar.com
+    name: Administrador
+    password: $2b$12$wf4V4d3UuJkbV4d1c/3VWOuAgODgb4.r9aUpIjvYinb4kcNIpUgde
