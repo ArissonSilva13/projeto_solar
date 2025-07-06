@@ -20,3 +20,4 @@ kaleido  # Para exportação de gráficos plotly
 # --- Dependências para funcionalidades de Ajustes
 openpyxl  # Para exportação Excel
 pyyaml    # Para manipulação de arquivos YAML
+fpdf2     # Para exportação de relatórios em PDF
