@@ -14,6 +14,8 @@ requests
 pandas
 numpy
 matplotlib
+plotly  # Para gráficos interativos nos relatórios
+kaleido  # Para exportação de gráficos plotly
 
 # --- Dependências para funcionalidades de Ajustes
 openpyxl  # Para exportação Excel

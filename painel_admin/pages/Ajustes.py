@@ -1,14 +1,19 @@
-import streamlit as st
-import yaml
-import pandas as pd
-import numpy as np
-import os
-from datetime import datetime, timedelta
-from streamlit_authenticator import Hasher
 import io
 import json
+import os
+import sys
+from datetime import datetime
 
-# ✅ Proteção de acesso
+import numpy as np
+import pandas as pd
+import streamlit as st
+import yaml
+from streamlit_authenticator import Hasher
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+from painel_admin.utils import gerar_dados_relatorio
+
 if not st.session_state.get("logged_in"):
     st.warning("Você precisa estar logado para acessar esta página.")
     st.stop()
@@ -17,7 +22,6 @@ st.set_page_config(page_title="Ajustes", page_icon="⚙️", layout="wide")
 
 ARQUIVO_USUARIOS = "painel_admin/usuarios.yaml"
 
-# Função para carregar dados de usuários
 @st.cache_data
 def carregar_usuarios():
     if os.path.exists(ARQUIVO_USUARIOS):
@@ -30,38 +34,10 @@ def salvar_usuarios(dados):
     with open(ARQUIVO_USUARIOS, "w") as f:
         yaml.dump(dados, f, default_flow_style=False)
 
-# Função para gerar dados de exemplo para relatórios
-@st.cache_data
-def gerar_dados_relatorio(dias=30):
-    dates = pd.date_range(
-        start=datetime.now() - timedelta(days=dias),
-        end=datetime.now(),
-        freq="D"
-    )
-    
-    data = []
-    for date in dates:
-        # Simulando dados diários
-        gerado_total = np.random.uniform(15, 45)  # kWh por dia
-        consumido_total = np.random.uniform(20, 40)  # kWh por dia
-        excedente = gerado_total - consumido_total
-        
-        data.append({
-            "Data": date.strftime("%Y-%m-%d"),
-            "Gerado (kWh)": round(gerado_total, 2),
-            "Consumido (kWh)": round(consumido_total, 2),
-            "Excedente (kWh)": round(excedente, 2),
-            "Economia (R$)": round(excedente * 0.75, 2)  # R$ 0.75 por kWh
-        })
-    
-    return pd.DataFrame(data)
-
 st.title("⚙️ Configurações e Ajustes")
 
-# Criando abas para organizar as funcionalidades
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3 = st.tabs([
     "👤 Opções de Usuário",
-    "📊 Relatórios",
     "📥 Exportação",
     "🔌 Integração"
 ])
@@ -70,7 +46,6 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.header("Configurações de Usuário")
     
-    # Carregando dados do usuário atual
     dados_usuarios = carregar_usuarios()
     usuario_atual = st.session_state.get("username")
     
@@ -108,13 +83,11 @@ with tab1:
                 elif len(nova_senha) < 4:
                     st.error("A senha deve ter pelo menos 4 caracteres.")
                 else:
-                    # Verificar senha atual (simplificado)
                     nova_senha_hash = Hasher([nova_senha]).generate()[0]
                     dados_usuarios["usernames"][usuario_atual]["password"] = nova_senha_hash
                     salvar_usuarios(dados_usuarios)
                     st.success("Senha alterada com sucesso!")
     
-    # Configurações de Sistema
     st.subheader("Configurações do Sistema")
     
     col1, col2 = st.columns(2)
@@ -126,63 +99,8 @@ with tab1:
         st.number_input("Timeout da sessão (minutos)", min_value=5, max_value=120, value=30)
         st.checkbox("Notificações por email", help="Receber alertas por email")
 
-# TAB 2: Relatórios
+# TAB 2: Exportação
 with tab2:
-    st.header("Relatórios e Análises")
-    
-    col1, col2 = st.columns([2, 1])
-    
-    with col2:
-        st.subheader("Configurações do Relatório")
-        periodo = st.selectbox(
-            "Período",
-            ["Últimos 7 dias", "Últimos 30 dias", "Últimos 90 dias", "Personalizado"]
-        )
-        
-        if periodo == "Personalizado":
-            data_inicio = st.date_input("Data início")
-            data_fim = st.date_input("Data fim")
-            dias = (data_fim - data_inicio).days
-        else:
-            dias = {"Últimos 7 dias": 7, "Últimos 30 dias": 30, "Últimos 90 dias": 90}[periodo]
-        
-        tipo_relatorio = st.selectbox(
-            "Tipo de Relatório",
-            ["Resumo Geral", "Análise Detalhada", "Comparativo Mensal"]
-        )
-        
-        if st.button("📊 Gerar Relatório"):
-            st.session_state.relatorio_gerado = True
-    
-    with col1:
-        if st.session_state.get("relatorio_gerado", False):
-            st.subheader("Relatório Gerado")
-            
-            # Gerar dados para o relatório
-            df_relatorio = gerar_dados_relatorio(dias)
-            
-            # Métricas principais
-            col_metric1, col_metric2, col_metric3, col_metric4 = st.columns(4)
-            
-            with col_metric1:
-                st.metric("Total Gerado", f"{df_relatorio['Gerado (kWh)'].sum():.1f} kWh")
-            with col_metric2:
-                st.metric("Total Consumido", f"{df_relatorio['Consumido (kWh)'].sum():.1f} kWh")
-            with col_metric3:
-                st.metric("Excedente Total", f"{df_relatorio['Excedente (kWh)'].sum():.1f} kWh")
-            with col_metric4:
-                st.metric("Economia Total", f"R$ {df_relatorio['Economia (R$)'].sum():.2f}")
-            
-            # Gráfico de tendência
-            st.subheader("Tendência de Produção")
-            st.line_chart(df_relatorio.set_index("Data")[["Gerado (kWh)", "Consumido (kWh)"]])
-            
-            # Tabela de dados
-            st.subheader("Dados Detalhados")
-            st.dataframe(df_relatorio, use_container_width=True)
-
-# TAB 3: Exportação
-with tab3:
     st.header("Exportação de Dados")
     
     col1, col2 = st.columns(2)
@@ -204,13 +122,12 @@ with tab3:
         incluir_resumo = st.checkbox("Incluir resumo estatístico", value=True)
         
         if st.button("📥 Preparar Exportação"):
-            # Gerar dados para exportação
             if periodo_exportacao == "Últimos 7 dias":
                 df_export = gerar_dados_relatorio(7)
             elif periodo_exportacao == "Últimos 30 dias":
                 df_export = gerar_dados_relatorio(30)
             else:
-                df_export = gerar_dados_relatorio(90)  # Simulando "todos os dados"
+                df_export = gerar_dados_relatorio(90)  
             
             st.session_state.dados_exportacao = df_export
             st.session_state.formato_export = formato_exportacao
@@ -253,12 +170,11 @@ with tab3:
                     mime="application/json"
                 )
             
-            # Pré-visualização dos dados
             st.subheader("Pré-visualização")
             st.dataframe(df_export.head(), use_container_width=True)
 
-# TAB 4: Integração
-with tab4:
+# TAB 3: Integração
+with tab3:
     st.header("Configurações de Integração")
     
     col1, col2 = st.columns(2)
@@ -266,7 +182,6 @@ with tab4:
     with col1:
         st.subheader("APIs e Webhooks")
         
-        # Configuração de webhook
         st.write("**Webhook para Notificações**")
         webhook_url = st.text_input("URL do Webhook", placeholder="https://exemplo.com/webhook")
         webhook_events = st.multiselect(
@@ -281,7 +196,6 @@ with tab4:
             else:
                 st.warning("Insira uma URL válida.")
         
-        # Configuração de API externa
         st.write("**Integração com APIs Externas**")
         api_key = st.text_input("API Key", type="password", help="Chave de API para serviços externos")
         api_provider = st.selectbox("Provedor", ["Weather API", "Energy API", "Custom API"])
@@ -289,21 +203,18 @@ with tab4:
         if st.button("🔌 Configurar API"):
             if api_key:
                 st.success("API configurada com sucesso!")
-                # Aqui você salvaria as configurações em um arquivo ou banco
             else:
                 st.warning("Insira uma API Key válida.")
     
     with col2:
         st.subheader("Sincronização de Dados")
         
-        # Configurações de sincronização
         auto_sync = st.checkbox("Sincronização automática", value=True)
         sync_interval = st.selectbox(
             "Intervalo de sincronização",
             ["A cada 15 minutos", "A cada hora", "A cada 6 horas", "Diariamente"]
         )
         
-        # Backup automático
         st.write("**Backup de Dados**")
         backup_enabled = st.checkbox("Backup automático", value=True)
         backup_location = st.selectbox(
@@ -315,7 +226,6 @@ with tab4:
             st.success("Backup realizado com sucesso!")
             st.info(f"Dados salvos em: {backup_location}")
         
-        # Status da integração
         st.subheader("Status das Integrações")
         
         status_items = [
@@ -328,7 +238,6 @@ with tab4:
         for item, status in status_items:
             st.write(f"**{item}**: {status}")
 
-# Botão de reset geral (apenas para administradores)
 if st.session_state.get("username") == "admin":
     st.divider()
     st.subheader("🔧 Configurações Avançadas (Administrador)")
