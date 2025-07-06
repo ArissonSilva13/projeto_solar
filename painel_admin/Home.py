@@ -48,6 +48,12 @@ if st.session_state.get("logged_in"):
         - **Análise detalhada**: Gráficos de área empilhada e eficiência
         - **Comparativo mensal**: Evolução da economia ao longo do tempo
         - **Performance**: Gauge de eficiência e heatmap de produção
+
+        ### 🚨 Sistema de Alertas
+        - **Monitoramento em tempo real**: Alertas automáticos de desempenho
+        - **Déficits críticos**: Notificações quando há baixa produção
+        - **Análise de excedentes**: Identificação de padrões problemáticos
+        - **Recomendações inteligentes**: Sugestões para otimização
         """)
 
     with col2:
@@ -58,11 +64,17 @@ if st.session_state.get("logged_in"):
         - **Configurações de sistema**: Personalize painéis e inversores
         - **Backup e restauração**: Salve e carregue configurações
 
-        ### 💾 Exportação de Dados
-        - **Formato CSV**: Para análise em planilhas
-        - **Formato Excel**: Com formatação profissional
-        - **Relatórios PDF**: Documentos para apresentações
-        - **Dados históricos**: Acesso a informações passadas
+        ### 📥 Exportação de Dados
+        - **Múltiplos formatos**: CSV, Excel, JSON e PDF
+        - **Relatórios personalizados**: Escolha períodos e configurações
+        - **Gráficos inclusos**: Visualizações em relatórios PDF
+        - **Dados históricos**: Acesso completo ao histórico de produção
+
+        ### 🔧 Ajustes Avançados
+        - **Gerenciamento de usuários**: Controle de acesso ao sistema
+        - **Backup automático**: Proteção de dados e configurações
+        - **Manutenção de sistema**: Ferramentas administrativas
+        - **Configurações avançadas**: Personalização completa
         """)
 
     # 🎯 Benefícios
@@ -124,6 +136,28 @@ if st.session_state.get("logged_in"):
         **Funcionalidades**: Exportação em CSV/Excel e períodos personalizáveis (7, 30, 90 dias).
         """)
 
+    with st.expander("🚨 Central de Alertas", expanded=False):
+        st.markdown("""
+        **Sistema de monitoramento inteligente:**
+        - **Alertas em tempo real**: Notificações automáticas sobre o desempenho
+        - **Déficits críticos**: Identificação de problemas de produção
+        - **Análise de excedentes**: Monitoramento de sobra/falta de energia
+        - **Recomendações**: Sugestões para otimização do sistema
+        
+        **Configurações**: Defina limites personalizados para diferentes tipos de alertas.
+        """)
+
+    with st.expander("📥 Exportação de Dados", expanded=False):
+        st.markdown("""
+        **Exporte seus dados em diversos formatos:**
+        - **CSV**: Para análise em planilhas e ferramentas externas
+        - **Excel**: Com formatação profissional e múltiplas abas
+        - **JSON**: Para integração com outros sistemas
+        - **PDF**: Relatórios completos com gráficos e análises
+        
+        **Personalizações**: Escolha períodos, inclua gráficos e resumos estatísticos.
+        """)
+
     with st.expander("⚙️ Configurações", expanded=False):
         st.markdown("""
         **Personalize seu sistema:**
@@ -182,33 +216,85 @@ if st.session_state.get("logged_in"):
         - Consulte a documentação em cada página
         - Use as dicas interativas nos controles
         - Verifique os exemplos nos relatórios
+        - Configure alertas para monitoramento automático
         """)
 
     with col2:
         st.success("""
         **✅ Dicas para melhor uso:**
         - Mantenha suas configurações sempre atualizadas
+        - Configure alertas para monitoramento proativo
         - Exporte dados regularmente para backup
-        - Monitore os relatórios periodicamente
+        - Monitore os relatórios e alertas periodicamente
         """)
 
     # 🚀 Navegação
     st.markdown("---")
     st.subheader("🚀 Navegação Rápida")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
-        if st.button("🔋 Ir para Simulador", use_container_width=True):
+        if st.button("🔋 Simulador", use_container_width=True):
             st.switch_page("pages/1_Simulador.py")
 
     with col2:
-        if st.button("📊 Ver Relatórios", use_container_width=True):
+        if st.button("📊 Relatórios", use_container_width=True):
             st.switch_page("pages/3_Relatorios.py")
 
     with col3:
+        if st.button("🚨 Alertas", use_container_width=True):
+            st.switch_page("pages/5_Alertas.py")
+
+    with col4:
+        if st.button("📥 Exportação", use_container_width=True):
+            st.switch_page("pages/4_Exportacao.py")
+
+    with col5:
         if st.button("⚙️ Configurações", use_container_width=True):
             st.switch_page("pages/2_Configuracoes.py")
+
+    # 🎯 Seção de Status do Sistema
+    st.markdown("---")
+    st.subheader("📊 Status do Sistema")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.markdown("""
+        <div style="text-align: center; padding: 10px; border-radius: 5px; background-color: white; border: 1px solid #e0e0e0;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #0066cc;">🔋 Sistema</p>
+            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #28a745;">Operacional</p>
+            <small style="color: #666;">Normal</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div style="text-align: center; padding: 10px; border-radius: 5px; background-color: white; border: 1px solid #e0e0e0;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ff6b35;">🚨 Alertas</p>
+            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #ffc107;">2 Ativos</p>
+            <small style="color: #666;">Verificar</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div style="text-align: center; padding: 10px; border-radius: 5px; background-color: white; border: 1px solid #e0e0e0;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #28a745;">📥 Exportações</p>
+            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #28a745;">Disponível</p>
+            <small style="color: #666;">Pronto</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown("""
+        <div style="text-align: center; padding: 10px; border-radius: 5px; background-color: white; border: 1px solid #e0e0e0;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #6c757d;">⚙️ Configurações</p>
+            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #28a745;">Atualizadas</p>
+            <small style="color: #666;">OK</small>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Sidebar
     st.sidebar.success("Você está logado.")
@@ -216,6 +302,8 @@ if st.session_state.get("logged_in"):
     st.sidebar.page_link("pages/1_Simulador.py", label="🔋 Simulador")
     st.sidebar.page_link("pages/2_Configuracoes.py", label="⚙️ Configurações")
     st.sidebar.page_link("pages/3_Relatorios.py", label="📊 Relatórios")
+    st.sidebar.page_link("pages/5_Alertas.py", label="🚨 Alertas")
+    st.sidebar.page_link("pages/4_Exportacao.py", label="📥 Exportação")
     st.sidebar.page_link("pages/Ajustes.py", label="🛠️ Ajustes")
 
     st.sidebar.markdown("---")

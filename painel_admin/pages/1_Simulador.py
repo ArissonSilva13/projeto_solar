@@ -32,8 +32,6 @@ def gerar_dados(data, intensidade, consumo_medio):
 
 dados = gerar_dados(data_base, intensidade_sol, consumo_base)
 
-st.success("✅ Simulação concluída! Dados gerados com sucesso.")
-
 st.info("🚨 Para visualizar alertas detalhados, acesse a página **Alertas** no menu lateral.")
 
 col1, col2, col3 = st.columns(3)
