@@ -325,6 +325,9 @@ else:
         if auth_status:
             st.sidebar.success(f"Bem-vindo, {name}")
             st.session_state["logged_in"] = True
+            # Registrar timestamp de login para controle de timeout
+            from datetime import datetime
+            st.session_state["login_time"] = datetime.now().isoformat()
             st.success("Login realizado com sucesso. Redirecionando...")
             st.switch_page("pages/1_Simulador.py")
 

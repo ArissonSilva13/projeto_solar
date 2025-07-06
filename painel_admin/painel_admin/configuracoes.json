@@ -1,0 +1,13 @@
+{
+  "tema": "Escuro",
+  "idioma": "Português",
+  "timeout_sessao": 30,
+  "notificacoes_email": false,
+  "email_smtp": {
+    "servidor": "",
+    "porta": 587,
+    "usuario": "",
+    "senha": "",
+    "ssl": true
+  }
+}

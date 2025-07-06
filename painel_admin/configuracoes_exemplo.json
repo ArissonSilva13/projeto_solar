@@ -1,0 +1,13 @@
+{
+  "tema": "Auto",
+  "idioma": "Português",
+  "timeout_sessao": 30,
+  "notificacoes_email": true,
+  "email_smtp": {
+    "servidor": "smtp.gmail.com",
+    "porta": 587,
+    "usuario": "seu.email@gmail.com",
+    "senha": "sua_senha_de_app",
+    "ssl": true
+  }
+} 

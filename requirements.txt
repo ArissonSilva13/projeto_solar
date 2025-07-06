@@ -21,3 +21,7 @@ kaleido  # Para exportação de gráficos plotly
 openpyxl  # Para exportação Excel
 pyyaml    # Para manipulação de arquivos YAML
 fpdf2     # Para exportação de relatórios em PDF
+
+# --- Sistema de Email e Notificações
+secure-smtplib  # Para envio de emails seguros
+email-validator  # Para validação de endereços de email
