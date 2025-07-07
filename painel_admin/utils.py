@@ -8,7 +8,6 @@ from matplotlib.figure import Figure
 
 
 def gerar_dados_relatorio(dias: int) -> pd.DataFrame:
-    """Gera um DataFrame com dados simulados para o relatório."""
     dates = pd.date_range(
         start=datetime.now() - timedelta(days=dias), periods=dias, freq="D"
     )
@@ -94,7 +93,6 @@ def gerar_dados_comparativo(anos=2):
 def gerar_pdf_relatorio(
     df: pd.DataFrame, incluir_graficos: bool, incluir_resumo: bool
 ) -> bytes:
-    """Gera um relatório em PDF a partir de um DataFrame."""
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", "B", 16)

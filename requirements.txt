@@ -17,11 +17,14 @@ matplotlib
 plotly  # Para gráficos interativos nos relatórios
 kaleido  # Para exportação de gráficos plotly
 
-# --- Dependências para funcionalidades de Ajustes
+# --- Sistema de Exportação
 openpyxl  # Para exportação Excel
-pyyaml    # Para manipulação de arquivos YAML
-fpdf2     # Para exportação de relatórios em PDF
+fpdf2     # Para geração de relatórios PDF
 
-# --- Sistema de Email e Notificações
+# --- Sistema de Alertas e Notificações
+pyyaml    # Para manipulação de arquivos YAML
 secure-smtplib  # Para envio de emails seguros
 email-validator  # Para validação de endereços de email
+
+# --- Configurações e utilitários
+# json, logging, io, datetime, smtplib, email são built-in do Python

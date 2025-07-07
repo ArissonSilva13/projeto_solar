@@ -6,10 +6,9 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 import locale
 
-# Configurar localização brasileira para formatação de moeda
 try:
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 except:
@@ -19,7 +18,6 @@ except:
         pass
 
 def format_currency(value):
-    """Formatar valor como moeda brasileira"""
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 st.set_page_config(page_title="Simulador Solar", layout="centered")
@@ -64,7 +62,6 @@ def gerar_dados(data, intensidade, consumo_medio):
     gerado = np.random.uniform(1, 8, size=24) * (intensidade / 100)
     consumido = np.random.normal(loc=consumo_medio, scale=1.2, size=24)
     
-    # Definir horários de pico (18h às 21h)
     horarios_pico = [(h.hour >= 18 and h.hour <= 21) for h in horas]
     
     df = pd.DataFrame({
@@ -80,34 +77,29 @@ def gerar_dados(data, intensidade, consumo_medio):
 
 @st.cache_data
 def calcular_financeiro(df, tarifa_normal, tarifa_pico, tarifa_compensacao):
-    # Calcular economia por não consumir energia da rede
     df["Economia_Consumo"] = df.apply(
         lambda row: min(row["Gerado (kWh)"], row["Consumido (kWh)"]) * 
         (tarifa_pico if row["Horario_Pico"] else tarifa_normal), 
         axis=1
     )
     
-    # Calcular ganho pela energia excedente injetada na rede
     df["Ganho_Excedente"] = df.apply(
         lambda row: max(0, row["Excedente (kWh)"]) * tarifa_compensacao,
         axis=1
     )
     
-    # Calcular custo se tivesse que comprar energia da rede
     df["Custo_Sem_Solar"] = df.apply(
         lambda row: row["Consumido (kWh)"] * 
         (tarifa_pico if row["Horario_Pico"] else tarifa_normal),
         axis=1
     )
     
-    # Calcular custo real (só o que não foi gerado)
     df["Custo_Real"] = df.apply(
         lambda row: max(0, row["Consumido (kWh)"] - row["Gerado (kWh)"]) * 
         (tarifa_pico if row["Horario_Pico"] else tarifa_normal),
         axis=1
     )
     
-    # Economia total por hora
     df["Economia_Total"] = df["Economia_Consumo"] + df["Ganho_Excedente"]
     
     return df
@@ -117,21 +109,18 @@ dados_financeiro = calcular_financeiro(dados, tarifa_normal, tarifa_pico, tarifa
 
 st.info("🚨 Para visualizar alertas detalhados, acesse a página **Alertas** no menu lateral.")
 
-# Gráficos primeiro
 st.subheader("📈 Produção vs Consumo por Hora")
 st.line_chart(dados_financeiro.set_index("Hora")[["Gerado (kWh)", "Consumido (kWh)", "Excedente (kWh)"]])
 
 st.subheader("💵 Ganhos Financeiros por Hora")
 st.line_chart(dados_financeiro.set_index("Hora")[["Economia_Consumo", "Ganho_Excedente", "Economia_Total"]])
 
-# Métricas principais
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("🔋 Total Gerado", f"{dados_financeiro['Gerado (kWh)'].sum():.2f} kWh")
 col2.metric("⚡ Total Consumido", f"{dados_financeiro['Consumido (kWh)'].sum():.2f} kWh")
 col3.metric("➕ Excedente Total", f"{dados_financeiro['Excedente (kWh)'].sum():.2f} kWh")
 col4.metric("💰 Economia Diária", format_currency(dados_financeiro['Economia_Total'].sum()))
 
-# Cálculos de projeções
 economia_diaria = dados_financeiro['Economia_Total'].sum()
 economia_mensal = economia_diaria * 30
 economia_anual = economia_diaria * 365
@@ -144,7 +133,6 @@ col2.metric("📈 Economia Anual", format_currency(economia_anual))
 col3.metric("⏰ Tempo de Retorno", f"{tempo_retorno:.1f} anos" if tempo_retorno != float('inf') else "N/A")
 col4.metric("💵 Economia em 25 anos", format_currency(economia_anual * 25))
 
-# Breakdown financeiro
 st.subheader("💰 Breakdown Financeiro Diário")
 col1, col2, col3 = st.columns(3)
 col1.metric("💡 Economia no Consumo", format_currency(dados_financeiro['Economia_Consumo'].sum()))
@@ -156,7 +144,6 @@ dados_exibicao = dados_financeiro.copy()
 dados_exibicao["Hora"] = dados_exibicao["Hora"].dt.strftime("%H:%M")
 dados_exibicao["Horário"] = dados_exibicao["Horario_Pico"].map({True: "Pico", False: "Normal"})
 
-# Formatar valores monetários na tabela
 for col in ["Economia_Consumo", "Ganho_Excedente", "Economia_Total"]:
     dados_exibicao[col] = dados_exibicao[col].apply(format_currency)
 
@@ -169,7 +156,6 @@ st.dataframe(dados_exibicao[[
     "Excedente (kWh)": "{:.2f}"
 }))
 
-# Análise de viabilidade
 st.subheader("📊 Análise de Viabilidade")
 if tempo_retorno != float('inf'):
     if tempo_retorno <= 5:
@@ -183,7 +169,6 @@ if tempo_retorno != float('inf'):
 else:
     st.error("❌ **Inviável:** O sistema não gera economia suficiente.")
 
-# Resumo executivo
 with st.expander("📋 Resumo Executivo"):
     st.write(f"""
     **Resumo da Simulação:**

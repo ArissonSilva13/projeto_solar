@@ -11,7 +11,6 @@ from streamlit_authenticator import Hasher
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-# Configuração de logging
 if not os.path.exists("painel_admin/logs"):
     os.makedirs("painel_admin/logs")
 
@@ -28,9 +27,7 @@ if not st.session_state.get("logged_in"):
     st.warning("Você precisa estar logado para acessar esta página.")
     st.stop()
 
-# Configuração do tema
 def aplicar_tema(tema: str):
-    """Aplica o tema selecionado"""
     if tema == "Escuro":
         st.markdown("""
         <style>
@@ -58,9 +55,7 @@ def aplicar_tema(tema: str):
         </style>
         """, unsafe_allow_html=True)
 
-# Carregar configurações
 def carregar_configuracoes() -> Dict[str, Any]:
-    """Carrega configurações do sistema"""
     config_file = "painel_admin/configuracoes.json"
     if os.path.exists(config_file):
         with open(config_file, "r", encoding="utf-8") as f:
@@ -80,17 +75,14 @@ def carregar_configuracoes() -> Dict[str, Any]:
     }
 
 def salvar_configuracoes(config: Dict[str, Any]):
-    """Salva configurações do sistema"""
     config_file = "painel_admin/configuracoes.json"
     with open(config_file, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
 
 def log_atividade(acao: str, detalhes: str = ""):
-    """Registra atividade no log"""
     logger = logging.getLogger(__name__)
     username = st.session_state.get("username", "desconhecido")
     
-    # Adicionar username ao formatter
     old_factory = logging.getLogRecordFactory()
     def record_factory(*args, **kwargs):
         record = old_factory(*args, **kwargs)
@@ -101,7 +93,6 @@ def log_atividade(acao: str, detalhes: str = ""):
     logger.info(f"{acao} - {detalhes}")
 
 def verificar_timeout_sessao():
-    """Verifica se a sessão expirou"""
     if "login_time" not in st.session_state:
         return False
     
@@ -122,7 +113,6 @@ def verificar_timeout_sessao():
     return True
 
 def resetar_configuracoes():
-    """Reseta todas as configurações para padrão"""
     config_padrao = {
         "tema": "Auto",
         "idioma": "Português",
@@ -140,7 +130,6 @@ def resetar_configuracoes():
     log_atividade("Configurações resetadas", "Todas as configurações foram restauradas para padrão")
 
 def verificar_senha_atual(senha_atual: str, username: str) -> bool:
-    """Verifica se a senha atual está correta"""
     dados_usuarios = carregar_usuarios()
     if username not in dados_usuarios.get("usernames", {}):
         return False
@@ -150,7 +139,6 @@ def verificar_senha_atual(senha_atual: str, username: str) -> bool:
     return hasher.check([senha_hash], [senha_atual])[0]
 
 def obter_logs_sistema(limite: int = 50) -> list:
-    """Obtém logs do sistema"""
     log_file = "painel_admin/logs/sistema.log"
     if not os.path.exists(log_file):
         return []
@@ -163,13 +151,10 @@ def obter_logs_sistema(limite: int = 50) -> list:
     
     return logs
 
-# Verificar timeout
 verificar_timeout_sessao()
 
-# Carregar configurações
 config = carregar_configuracoes()
 
-# Aplicar tema
 aplicar_tema(config.get("tema", "Auto"))
 
 st.set_page_config(page_title="Ajustes", page_icon="⚙️", layout="wide")
@@ -268,14 +253,12 @@ with col2:
         help="Receber alertas por email"
     )
 
-# Inicializar variáveis de email
 servidor_smtp = ""
 porta_smtp = 587
 usuario_smtp = ""
 senha_smtp = ""
 ssl_smtp = True
 
-# Configurações de email (só aparece se notificações estão ativadas)
 if notificacoes_email:
     st.subheader("Configurações de Email")
     email_config = config.get("email_smtp", {})
@@ -311,7 +294,6 @@ if notificacoes_email:
             value=email_config.get("ssl", True)
         )
     
-    # Botão de teste de email
     st.subheader("Testar Configurações de Email")
     email_teste = st.text_input("Email para teste", help="Digite um email para testar as configurações")
     
@@ -341,7 +323,6 @@ if notificacoes_email:
                     st.error("❌ Falha ao enviar email de teste. Verifique as configurações.")
                     log_atividade("Falha no teste de email", f"Destinatário: {email_teste}")
 
-# Botão para salvar configurações
 if st.button("💾 Salvar Configurações do Sistema"):
     nova_config = {
         "tema": tema_atual,
@@ -362,7 +343,6 @@ if st.button("💾 Salvar Configurações do Sistema"):
     st.success("Configurações salvas com sucesso!")
     st.rerun()
 
-# Configurações avançadas para admin
 if st.session_state.get("username") == "admin":
     st.divider()
     st.subheader("🔧 Configurações Avançadas (Administrador)")
@@ -390,7 +370,6 @@ if st.session_state.get("username") == "admin":
         if st.button("📋 Logs do Sistema", help="Visualizar logs de atividade"):
             st.session_state["mostrar_logs"] = not st.session_state.get("mostrar_logs", False)
 
-    # Mostrar logs se solicitado
     if st.session_state.get("mostrar_logs", False):
         st.subheader("📋 Logs do Sistema")
         
@@ -403,11 +382,9 @@ if st.session_state.get("username") == "admin":
         logs = obter_logs_sistema(limite_logs)
         
         if logs:
-            # Mostrar logs em uma área de texto
             logs_text = "\n".join(logs)
             st.text_area("Logs", logs_text, height=300, disabled=True)
             
-            # Opção para baixar logs
             st.download_button(
                 label="📥 Baixar Logs",
                 data=logs_text,
@@ -417,7 +394,6 @@ if st.session_state.get("username") == "admin":
         else:
             st.info("Nenhum log encontrado.")
 
-# Informações do sistema
 st.divider()
 st.subheader("ℹ️ Informações do Sistema")
 

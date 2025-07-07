@@ -9,7 +9,6 @@ import os
 import logging
 
 def carregar_configuracoes_email() -> Dict[str, Any]:
-    """Carrega configurações de email do arquivo de configurações"""
     config_file = "painel_admin/configuracoes.json"
     if os.path.exists(config_file):
         with open(config_file, "r", encoding="utf-8") as f:
@@ -18,7 +17,6 @@ def carregar_configuracoes_email() -> Dict[str, Any]:
     return {}
 
 def testar_configuracao_email(config: Dict[str, Any]) -> bool:
-    """Testa se a configuração de email está funcionando"""
     try:
         servidor = config.get("servidor", "")
         porta = config.get("porta", 587)
@@ -51,22 +49,7 @@ def enviar_email(
     anexos: Optional[List[str]] = None,
     config: Optional[Dict[str, Any]] = None
 ) -> bool:
-    """
-    Envia um email usando as configurações do sistema
-    
-    Args:
-        destinatario: Email do destinatário
-        assunto: Assunto do email
-        corpo: Corpo do email em texto simples
-        corpo_html: Corpo do email em HTML (opcional)
-        anexos: Lista de caminhos para anexos (opcional)
-        config: Configurações customizadas (opcional)
-    
-    Returns:
-        bool: True se enviado com sucesso, False caso contrário
-    """
     try:
-        # Usar configurações customizadas ou carregar do arquivo
         email_config = config or carregar_configuracoes_email()
         
         servidor = email_config.get("servidor", "")
@@ -79,23 +62,19 @@ def enviar_email(
             logging.error("Configurações de email incompletas")
             return False
         
-        # Criar mensagem
         msg = MIMEMultipart('alternative')
         msg['From'] = usuario
         msg['To'] = destinatario
         msg['Subject'] = assunto
         
-        # Adicionar corpo em texto simples
         if corpo:
             part1 = MIMEText(corpo, 'plain', 'utf-8')
             msg.attach(part1)
         
-        # Adicionar corpo em HTML se fornecido
         if corpo_html:
             part2 = MIMEText(corpo_html, 'html', 'utf-8')
             msg.attach(part2)
         
-        # Adicionar anexos se fornecidos
         if anexos:
             for arquivo in anexos:
                 if os.path.exists(arquivo):
@@ -112,7 +91,6 @@ def enviar_email(
                     
                     msg.attach(part)
         
-        # Conectar ao servidor SMTP
         if ssl:
             smtp_server = smtplib.SMTP(servidor, porta)
             smtp_server.starttls()
@@ -121,7 +99,6 @@ def enviar_email(
         
         smtp_server.login(usuario, senha)
         
-        # Enviar email
         text = msg.as_string()
         smtp_server.sendmail(usuario, destinatario, text)
         smtp_server.quit()
@@ -139,33 +116,17 @@ def enviar_notificacao_alerta(
     nivel: str = "info",
     destinatario: Optional[str] = None
 ) -> bool:
-    """
-    Envia uma notificação de alerta por email
-    
-    Args:
-        tipo_alerta: Tipo do alerta (ex: "Baixa Produção", "Déficit Crítico")
-        mensagem: Mensagem do alerta
-        nivel: Nível do alerta (info, warning, error)
-        destinatario: Email do destinatário (opcional, usa o do usuário logado)
-    
-    Returns:
-        bool: True se enviado com sucesso, False caso contrário
-    """
     try:
-        # Carregar configurações
         config_geral = {}
         config_file = "painel_admin/configuracoes.json"
         if os.path.exists(config_file):
             with open(config_file, "r", encoding="utf-8") as f:
                 config_geral = json.load(f)
         
-        # Verificar se notificações por email estão ativadas
         if not config_geral.get("notificacoes_email", False):
             return False
         
-        # Determinar destinatário
         if not destinatario:
-            # Carregar dados do usuário logado
             from streamlit import session_state
             if "username" in session_state:
                 import yaml
@@ -182,7 +143,6 @@ def enviar_notificacao_alerta(
             logging.warning("Nenhum destinatário definido para notificação de alerta")
             return False
         
-        # Definir emojis e cores baseados no nível
         emojis = {
             "info": "ℹ️",
             "warning": "⚠️",
@@ -198,10 +158,8 @@ def enviar_notificacao_alerta(
         emoji = emojis.get(nivel, "ℹ️")
         cor = cores.get(nivel, "#17a2b8")
         
-        # Criar assunto
         assunto = f"{emoji} Sistema Solar - {tipo_alerta}"
         
-        # Criar corpo em texto simples
         from datetime import datetime
         data_hora = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         corpo_texto = f"""
@@ -217,7 +175,6 @@ Data/Hora: {data_hora}
 Este é um alerta automático do Sistema de Monitoramento Solar.
         """
         
-        # Criar corpo em HTML
         corpo_html = f"""
         <html>
         <head>
@@ -254,7 +211,6 @@ Este é um alerta automático do Sistema de Monitoramento Solar.
         </html>
         """
         
-        # Enviar email
         return enviar_email(
             destinatario=destinatario,
             assunto=assunto,
@@ -267,16 +223,6 @@ Este é um alerta automático do Sistema de Monitoramento Solar.
         return False
 
 def enviar_email_teste(destinatario: str, config: Optional[Dict[str, Any]] = None) -> bool:
-    """
-    Envia um email de teste para verificar as configurações
-    
-    Args:
-        destinatario: Email do destinatário
-        config: Configurações customizadas (opcional)
-    
-    Returns:
-        bool: True se enviado com sucesso, False caso contrário
-    """
     assunto = "🔧 Teste de Configuração - Sistema Solar"
     
     corpo_texto = """

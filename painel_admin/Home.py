@@ -6,21 +6,17 @@ from streamlit_authenticator import Hasher
 
 st.set_page_config(page_title="Início", page_icon="☀️", layout="centered", initial_sidebar_state="collapsed")
 
-# ✅ Garante que 'logged_in' esteja sempre definido
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# 🔁 Função para logout completo e seguro
 def realizar_logout():
     for chave in list(st.session_state.keys()):
         del st.session_state[chave]
     st.rerun()
 
-# ✅ Verifica se está logado
 if st.session_state.get("logged_in"):
     st.title("☀️ Painel Solar - Sistema de Monitoramento e Simulação")
 
-    # 🎯 Introdução Principal
     st.markdown("""
     ## 🌞 Bem-vindo ao Sistema de Energia Solar Inteligente
 
@@ -29,7 +25,6 @@ if st.session_state.get("logged_in"):
     o desempenho do seu sistema fotovoltaico.
     """)
 
-    # 📊 Seção de Funcionalidades
     st.markdown("---")
     st.subheader("🚀 Funcionalidades Principais")
 
@@ -77,7 +72,6 @@ if st.session_state.get("logged_in"):
         - **Configurações avançadas**: Personalização completa
         """)
 
-    # 🎯 Benefícios
     st.markdown("---")
     st.subheader("💡 Benefícios do Sistema")
 
@@ -110,7 +104,6 @@ if st.session_state.get("logged_in"):
         - Tomada de decisão informada
         """)
 
-    # 🛠️ Como Usar
     st.markdown("---")
     st.subheader("🗺️ Como Utilizar o Sistema")
 
@@ -180,7 +173,6 @@ if st.session_state.get("logged_in"):
         **Acesso**: Disponível para administradores do sistema.
         """)
 
-    # 🔧 Tecnologias
     st.markdown("---")
     st.subheader("🔧 Tecnologias Utilizadas")
 
@@ -204,7 +196,6 @@ if st.session_state.get("logged_in"):
         - **YAML**: Configurações e autenticação
         """)
 
-    # 📞 Suporte
     st.markdown("---")
     st.subheader("📞 Suporte e Ajuda")
 
@@ -228,7 +219,6 @@ if st.session_state.get("logged_in"):
         - Monitore os relatórios e alertas periodicamente
         """)
 
-    # 🚀 Navegação
     st.markdown("---")
     st.subheader("🚀 Navegação Rápida")
 
@@ -254,7 +244,6 @@ if st.session_state.get("logged_in"):
         if st.button("👤 Cadastrar Usuário", use_container_width=True):
             st.switch_page("pages/2_Cadastrar_Usuario.py")
 
-    # 🎯 Seção de Status do Sistema
     st.markdown("---")
     st.subheader("📊 Status do Sistema")
 
@@ -296,7 +285,6 @@ if st.session_state.get("logged_in"):
         </div>
         """, unsafe_allow_html=True)
 
-    # Sidebar
     st.sidebar.success("Você está logado.")
     st.sidebar.markdown("### 🧭 Navegação")
     st.sidebar.page_link("pages/1_Simulador.py", label="🔋 Simulador")
@@ -325,7 +313,6 @@ else:
         if auth_status:
             st.sidebar.success(f"Bem-vindo, {name}")
             st.session_state["logged_in"] = True
-            # Registrar timestamp de login para controle de timeout
             from datetime import datetime
             st.session_state["login_time"] = datetime.now().isoformat()
             st.success("Login realizado com sucesso. Redirecionando...")
