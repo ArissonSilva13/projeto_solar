@@ -1,66 +1,54 @@
 import streamlit as st
-
-if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    st.error("Você precisa estar logado para acessar esta página.")
-    st.stop()
-
 import pandas as pd
 import numpy as np
+import plotly.express as px  # <--- Nova biblioteca para gráficos bonitos
 from datetime import datetime
 import locale
+from shared import aplicar_estilo_solar # <--- Importando nosso estilo
 
-try:
-    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-except:
-    try:
-        locale.setlocale(locale.LC_ALL, 'Portuguese_Brazil.1252')
-    except:
-        pass
+# --- CONFIGURAÇÃO INICIAL ---
+st.set_page_config(page_title="Simulador Solar", page_icon="☀️", layout="wide") # Mudei para wide
 
+# Aplica o CSS Global (Cards, Cores, etc)
+aplicar_estilo_solar()
+
+# --- VERIFICAÇÃO DE LOGIN ---
+if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
+    st.error("🔒 Você precisa estar logado para acessar esta página.")
+    st.stop()
+
+# --- FUNÇÕES UTILITÁRIAS ---
 def format_currency(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-st.set_page_config(page_title="Simulador Solar", layout="centered")
+# --- SIDEBAR (CONFIGURAÇÕES) ---
+with st.sidebar:
+    st.header("⚙️ Parâmetros de Simulação")
+    data_base = st.date_input("Data da Simulação", value=datetime.today())
+    
+    st.markdown("### ☀️ Sistema Solar")
+    intensidade_sol = st.slider("Intensidade Solar (%)", 50, 150, 100, help="100% é um dia de sol pleno.")
+    
+    st.markdown("### 🏠 Consumo")
+    consumo_base = st.slider("Consumo Médio (kWh)", 1.0, 10.0, 4.0)
 
-st.markdown("""
-<style>
-[data-testid="metric-container"] {
-    font-size: 0.6rem !important;
-}
-[data-testid="metric-container"] > div {
-    font-size: 0.6rem !important;
-}
-[data-testid="metric-container"] label {
-    font-size: 0.75rem !important;
-}
-[data-testid="metric-container"] [data-testid="metric-value"] {
-    font-size: 0.8rem !important;
-}
-        
-.st-emotion-cache-efbu8t{
-    font-size: 1.5rem !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+    st.markdown("### 💰 Tarifas (R$)")
+    tarifa_normal = st.number_input("Tarifa Normal", value=0.65, step=0.01, format="%.2f")
+    tarifa_pico = st.number_input("Tarifa Pico", value=0.85, step=0.01, format="%.2f")
+    tarifa_compensacao = st.number_input("Tarifa Compensação", value=0.50, step=0.01, format="%.2f")
+    investimento_inicial = st.number_input("Investimento Inicial", value=15000.0, step=500.0, format="%.2f")
 
-st.title("☀️ Simulador de Produção de Energia Solar")
-
-st.sidebar.header("⚙️ Configurações")
-data_base = st.sidebar.date_input("Selecionar data", value=datetime.today())
-intensidade_sol = st.sidebar.slider("Intensidade solar (%)", 50, 150, 100)
-consumo_base = st.sidebar.slider("Consumo médio (kWh)", 1.0, 10.0, 4.0)
-
-st.sidebar.header("💰 Configurações Financeiras")
-tarifa_normal = st.sidebar.number_input("Tarifa normal (R$/kWh)", value=0.65, step=0.01, format="%.2f")
-tarifa_pico = st.sidebar.number_input("Tarifa pico (R$/kWh)", value=0.85, step=0.01, format="%.2f")
-tarifa_compensacao = st.sidebar.number_input("Tarifa compensação (R$/kWh)", value=0.50, step=0.01, format="%.2f")
-investimento_inicial = st.sidebar.number_input("Investimento inicial (R$)", value=15000.0, step=500.0, format="%.2f")
-
+# --- LÓGICA (MANTIDA IGUAL) ---
 @st.cache_data
 def gerar_dados(data, intensidade, consumo_medio):
     horas = pd.date_range(start=pd.Timestamp(data), periods=24, freq="h")
-    gerado = np.random.uniform(1, 8, size=24) * (intensidade / 100)
-    consumido = np.random.normal(loc=consumo_medio, scale=1.2, size=24)
+    # Pequeno ajuste para garantir que não gere negativo na aleatoriedade
+    gerado = np.maximum(0, np.random.uniform(0, 8, size=24) * (intensidade / 100))
+    # Zera geração à noite (aprox 19h as 06h) para realismo
+    horas_noite = [h.hour < 6 or h.hour > 18 for h in horas]
+    gerado[horas_noite] = 0
+    
+    consumido = np.maximum(0, np.random.normal(loc=consumo_medio, scale=1.2, size=24))
     
     horarios_pico = [(h.hour >= 18 and h.hour <= 21) for h in horas]
     
@@ -72,14 +60,12 @@ def gerar_dados(data, intensidade, consumo_medio):
     })
     
     df["Excedente (kWh)"] = np.round(df["Gerado (kWh)"] - df["Consumido (kWh)"], 2)
-    
     return df
 
 @st.cache_data
 def calcular_financeiro(df, tarifa_normal, tarifa_pico, tarifa_compensacao):
     df["Economia_Consumo"] = df.apply(
-        lambda row: min(row["Gerado (kWh)"], row["Consumido (kWh)"]) * 
-        (tarifa_pico if row["Horario_Pico"] else tarifa_normal), 
+        lambda row: min(row["Gerado (kWh)"], row["Consumido (kWh)"]) * (tarifa_pico if row["Horario_Pico"] else tarifa_normal), 
         axis=1
     )
     
@@ -89,102 +75,122 @@ def calcular_financeiro(df, tarifa_normal, tarifa_pico, tarifa_compensacao):
     )
     
     df["Custo_Sem_Solar"] = df.apply(
-        lambda row: row["Consumido (kWh)"] * 
-        (tarifa_pico if row["Horario_Pico"] else tarifa_normal),
+        lambda row: row["Consumido (kWh)"] * (tarifa_pico if row["Horario_Pico"] else tarifa_normal),
         axis=1
     )
     
     df["Custo_Real"] = df.apply(
-        lambda row: max(0, row["Consumido (kWh)"] - row["Gerado (kWh)"]) * 
-        (tarifa_pico if row["Horario_Pico"] else tarifa_normal),
+        lambda row: max(0, row["Consumido (kWh)"] - row["Gerado (kWh)"]) * (tarifa_pico if row["Horario_Pico"] else tarifa_normal),
         axis=1
     )
     
     df["Economia_Total"] = df["Economia_Consumo"] + df["Ganho_Excedente"]
-    
     return df
 
+# Processamento
 dados = gerar_dados(data_base, intensidade_sol, consumo_base)
 dados_financeiro = calcular_financeiro(dados, tarifa_normal, tarifa_pico, tarifa_compensacao)
 
-st.info("🚨 Para visualizar alertas detalhados, acesse a página **Alertas** no menu lateral.")
+# --- INTERFACE PRINCIPAL ---
+st.title("☀️ Simulador de Produção Solar")
+st.markdown("Acompanhe a projeção de geração de energia e economia financeira baseada nos parâmetros laterais.")
 
-st.subheader("📈 Produção vs Consumo por Hora")
-st.line_chart(dados_financeiro.set_index("Hora")[["Gerado (kWh)", "Consumido (kWh)", "Excedente (kWh)"]])
+# --- GRÁFICOS LADO A LADO ---
+col_graf1, col_graf2 = st.columns(2)
 
-st.subheader("💵 Ganhos Financeiros por Hora")
-st.line_chart(dados_financeiro.set_index("Hora")[["Economia_Consumo", "Ganho_Excedente", "Economia_Total"]])
+with col_graf1:
+    st.markdown("##### 📈 Produção vs Consumo (24h)")
+    # Gráfico Plotly Personalizado (Muito mais bonito que st.line_chart)
+    fig_prod = px.area(
+        dados_financeiro, 
+        x="Hora", 
+        y=["Gerado (kWh)", "Consumido (kWh)"],
+        color_discrete_sequence=["#FF8C00", "#1E3A8A"], # Laranja e Azul
+        labels={"value": "Energia (kWh)", "variable": "Legenda"}
+    )
+    fig_prod.update_layout(legend=dict(orientation="h", y=1.1, x=0), margin=dict(l=0, r=0, t=0, b=0))
+    st.plotly_chart(fig_prod, use_container_width=True)
 
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("🔋 Total Gerado", f"{dados_financeiro['Gerado (kWh)'].sum():.2f} kWh")
-col2.metric("⚡ Total Consumido", f"{dados_financeiro['Consumido (kWh)'].sum():.2f} kWh")
-col3.metric("➕ Excedente Total", f"{dados_financeiro['Excedente (kWh)'].sum():.2f} kWh")
-col4.metric("💰 Economia Diária", format_currency(dados_financeiro['Economia_Total'].sum()))
+with col_graf2:
+    st.markdown("##### 💵 Economia Acumulada")
+    fig_fin = px.bar(
+        dados_financeiro, 
+        x="Hora", 
+        y="Economia_Total",
+        color_discrete_sequence=["#10B981"], # Verde Dinheiro
+        labels={"Economia_Total": "Economia (R$)"}
+    )
+    fig_fin.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+    st.plotly_chart(fig_fin, use_container_width=True)
 
+st.markdown("---")
+
+# --- KPI CARDS (Vão pegar o estilo do shared.py) ---
+st.subheader("📊 Resultados do Dia")
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("🔋 Total Gerado", f"{dados_financeiro['Gerado (kWh)'].sum():.2f} kWh")
+c2.metric("⚡ Total Consumido", f"{dados_financeiro['Consumido (kWh)'].sum():.2f} kWh")
+c3.metric("➕ Excedente", f"{dados_financeiro['Excedente (kWh)'].sum():.2f} kWh")
+c4.metric("💰 Economia Hoje", format_currency(dados_financeiro['Economia_Total'].sum()))
+
+# --- PROJEÇÕES FINANCEIRAS ---
 economia_diaria = dados_financeiro['Economia_Total'].sum()
 economia_mensal = economia_diaria * 30
 economia_anual = economia_diaria * 365
 tempo_retorno = investimento_inicial / economia_anual if economia_anual > 0 else float('inf')
 
-st.subheader("📊 Projeções Financeiras")
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("📈 Economia Mensal", format_currency(economia_mensal))
-col2.metric("📈 Economia Anual", format_currency(economia_anual))
-col3.metric("⏰ Tempo de Retorno", f"{tempo_retorno:.1f} anos" if tempo_retorno != float('inf') else "N/A")
-col4.metric("💵 Economia em 25 anos", format_currency(economia_anual * 25))
+st.markdown("### 📅 Projeção de Retorno (ROI)")
+with st.container(border=True): # Cria uma caixa bonita em volta
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("🗓️ Economia Mensal", format_currency(economia_mensal))
+    col2.metric("📅 Economia Anual", format_currency(economia_anual))
+    col3.metric("⏳ Payback Estimado", f"{tempo_retorno:.1f} anos", 
+                delta="Bom" if tempo_retorno < 5 else "Médio", delta_color="inverse")
+    col4.metric("💎 Economia 25 Anos", format_currency(economia_anual * 25))
 
-st.subheader("💰 Breakdown Financeiro Diário")
-col1, col2, col3 = st.columns(3)
-col1.metric("💡 Economia no Consumo", format_currency(dados_financeiro['Economia_Consumo'].sum()))
-col2.metric("🔄 Ganho Excedente", format_currency(dados_financeiro['Ganho_Excedente'].sum()))
-col3.metric("🔻 Redução na Conta", format_currency(dados_financeiro['Custo_Sem_Solar'].sum() - dados_financeiro['Custo_Real'].sum()))
+    # Barra de Progresso do Payback
+    if tempo_retorno < 20:
+        progresso = min(1.0, max(0.0, 1 - (tempo_retorno / 10))) # Exemplo visual
+        st.progress(progresso, text=f"Viabilidade do Investimento: {progresso*100:.0f}%")
 
-st.subheader("📋 Dados Detalhados")
-dados_exibicao = dados_financeiro.copy()
-dados_exibicao["Hora"] = dados_exibicao["Hora"].dt.strftime("%H:%M")
-dados_exibicao["Horário"] = dados_exibicao["Horario_Pico"].map({True: "Pico", False: "Normal"})
+# --- TABELA DE DADOS (DATA EDITOR COM FORMATAÇÃO) ---
+st.subheader("📋 Detalhamento Horário")
 
-for col in ["Economia_Consumo", "Ganho_Excedente", "Economia_Total"]:
-    dados_exibicao[col] = dados_exibicao[col].apply(format_currency)
+# Prepara dados para a tabela
+df_table = dados_financeiro[["Hora", "Gerado (kWh)", "Consumido (kWh)", "Economia_Total"]].copy()
+df_table["Hora"] = df_table["Hora"].dt.strftime("%H:%M")
 
-st.dataframe(dados_exibicao[[
-    "Hora", "Horário", "Gerado (kWh)", "Consumido (kWh)", "Excedente (kWh)",
-    "Economia_Consumo", "Ganho_Excedente", "Economia_Total"
-]].style.format({
-    "Gerado (kWh)": "{:.2f}",
-    "Consumido (kWh)": "{:.2f}",
-    "Excedente (kWh)": "{:.2f}"
-}))
+# Tabela Interativa Bonita
+st.dataframe(
+    df_table,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Hora": st.column_config.TextColumn("Horário"),
+        "Gerado (kWh)": st.column_config.ProgressColumn(
+            "Geração Solar",
+            format="%.2f kWh",
+            min_value=0,
+            max_value=float(df_table["Gerado (kWh)"].max()),
+        ),
+        "Consumido (kWh)": st.column_config.NumberColumn(
+            "Consumo",
+            format="%.2f kWh",
+        ),
+        "Economia_Total": st.column_config.NumberColumn(
+            "Economia (R$)",
+            format="R$ %.2f",
+        ),
+    }
+)
 
-st.subheader("📊 Análise de Viabilidade")
-if tempo_retorno != float('inf'):
-    if tempo_retorno <= 5:
-        st.success(f"🎯 **Excelente investimento!** Payback em {tempo_retorno:.1f} anos.")
-    elif tempo_retorno <= 8:
-        st.info(f"👍 **Bom investimento!** Payback em {tempo_retorno:.1f} anos.")
-    elif tempo_retorno <= 12:
-        st.warning(f"⚠️ **Investimento moderado.** Payback em {tempo_retorno:.1f} anos.")
-    else:
-        st.error(f"❌ **Investimento de alto risco.** Payback em {tempo_retorno:.1f} anos.")
-else:
-    st.error("❌ **Inviável:** O sistema não gera economia suficiente.")
-
-with st.expander("📋 Resumo Executivo"):
-    st.write(f"""
+# --- RESUMO (EXPANDER) ---
+with st.expander("📝 Ver Relatório Executivo Completo"):
+    st.markdown(f"""
     **Resumo da Simulação:**
+    O sistema simulado com **{intensidade_sol}% de eficiência solar** gerou uma economia diária de **{format_currency(economia_diaria)}**.
     
-    - **Investimento inicial:** {format_currency(investimento_inicial)}
-    - **Economia diária:** {format_currency(economia_diaria)}
-    - **Economia mensal:** {format_currency(economia_mensal)}
-    - **Economia anual:** {format_currency(economia_anual)}
-    - **Tempo de retorno:** {tempo_retorno:.1f} anos
-    - **Economia em 25 anos:** {format_currency(economia_anual * 25)}
-    - **ROI em 25 anos:** {((economia_anual * 25 - investimento_inicial) / investimento_inicial * 100):.1f}%
-    
-    **Configurações utilizadas:**
-    - Tarifa normal: {format_currency(tarifa_normal)}/kWh
-    - Tarifa pico: {format_currency(tarifa_pico)}/kWh
-    - Tarifa compensação: {format_currency(tarifa_compensacao)}/kWh
-    - Intensidade solar: {intensidade_sol}%
-    - Consumo médio: {consumo_base} kWh
+    * **Investimento:** {format_currency(investimento_inicial)}
+    * **Retorno em:** {tempo_retorno:.1f} anos
+    * **Lucro Projetado (25 anos):** {format_currency((economia_anual * 25) - investimento_inicial)}
     """)
