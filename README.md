@@ -1,309 +1,163 @@
-# 🌞 Projeto Solar - Painel Interativo com Autenticação
+SolarTrack - Sistema de Gestão de Energia Fotovoltaica
 
-## 📋 Descrição
+Descrição do Projeto
 
-Uma aplicação web desenvolvida com **Streamlit** e **FastAPI** que simula a geração e o consumo de energia solar de forma visual e interativa. O sistema oferece autenticação de usuários, controle de sessão e páginas separadas para simulação, relatórios avançados e configurações.
+O SolarTrack é uma plataforma de Business Intelligence (BI) e monitoramento para sistemas de energia solar. Desenvolvida em Python utilizando Streamlit para o frontend e FastAPI para o backend, a aplicação oferece uma interface profissional para simulação de geração de energia, análise financeira (ROI), monitoramento de alertas em tempo real e gestão de usuários.
 
-## 🎯 Objetivos
+O sistema foi projetado para oferecer uma experiência de "SaaS" (Software as a Service), com painéis interativos, gráficos dinâmicos (Plotly) e exportação de dados em múltiplos formatos.
 
-- Simular o comportamento de um sistema de energia solar ao longo do dia
-- Permitir ajustes de parâmetros como intensidade solar e consumo médio
-- Oferecer interface intuitiva para gerenciamento de usuários
-- Proporcionar navegação segura com sistema de autenticação
-- Gerar relatórios diversificados com visualizações interativas
+Funcionalidades Principais
 
-## ⚡ Funcionalidades
+1. Autenticação e Segurança
 
-### 🔐 Autenticação
-- Sistema de login e logout seguro
-- Cadastro de novos usuários
-- Senhas criptografadas
-- Controle de sessão com `st.session_state`
+Sistema de login seguro com hash de senhas.
 
-### 📊 Simulação
-- Gráficos interativos de produção, consumo e excedente de energia
-- Ajustes em tempo real dos parâmetros
-- Visualização clara dos dados
-- Análise de performance em tempo real
+Gestão de sessão persistente.
 
-### 📈 Relatórios Avançados
-- **Resumo Geral**: Métricas principais com gráficos de linha e barras
-- **Análise Detalhada**: Gráficos de área empilhada, análise de eficiência e produção por dia da semana
-- **Comparativo Mensal**: Comparação entre meses e evolução da economia
-- **Eficiência e Performance**: Gauge de eficiência e heatmap de produção
-- **Período Personalizável**: Relatórios para 7, 30, 90 dias ou período customizado
-- **Métricas Avançadas**: Cálculos de eficiência, melhor/pior dia, percentual de excedente
+Controle de acesso (apenas usuários autenticados acessam o painel).
 
-### 📥 Exportação de Dados
-- **Múltiplos Formatos**: CSV, Excel, JSON e PDF
-- **Relatórios Personalizados**: Escolha períodos específicos
-- **Gráficos Inclusos**: Visualizações em relatórios PDF
-- **Dados Históricos**: Exportação completa de dados históricos
-- **Configurações Flexíveis**: Opção de incluir/excluir gráficos e resumos estatísticos
+Interface de login moderna com identidade visual corporativa.
 
-### 🚨 Sistema de Alertas
-- **Monitoramento Inteligente**: Alertas automáticos baseados em thresholds configuráveis
-- **Níveis de Alerta**: Crítico, moderado e atenção
-- **Notificações por Email**: Sistema completo de notificações SMTP
-- **Análise de Déficits**: Detecção de déficits críticos e moderados
-- **Recomendações Automáticas**: Sugestões de otimização baseadas nos alertas
-- **Exportação de Alertas**: Histórico completo de alertas em formato planilha
+2. Simulador Solar
 
-### 👤 Gerenciamento de Usuários
-- **Cadastro Simplificado**: Interface intuitiva para cadastro
-- **Validação de Dados**: Verificação de campos obrigatórios
-- **Gestão de Perfis**: Armazenamento seguro de dados de usuários
-- **Controle de Acesso**: Sistema de permissões por usuário
+Projeção de geração de energia baseada em intensidade solar e consumo.
 
-### 🛡️ Segurança
-- Restrição de acesso apenas para usuários autenticados
-- Proteção contra reentrada não autorizada
-- Logout completo com limpeza de sessão
-- Criptografia de senhas com hash seguro
+Cálculo financeiro automático: Economia diária, mensal e anual.
 
-## 🚀 Como Executar
+Estimativa de Payback (Tempo de Retorno) e ROI em 25 anos.
 
-### 📋 Pré-requisitos
-- Python 3.9 ou superior
-- Git
+Visualização gráfica da curva de produção x consumo.
 
-### 1️⃣ Clonar o Repositório
-```bash
-git clone https://github.com/ArissonSilva13/projeto_solar.git
-cd projeto_solar
-```
+3. Relatórios e BI
 
-### 2️⃣ Configurar Ambiente Virtual (Único)
+Dashboard interativo com filtros de período (7, 30, 90 dias ou personalizado).
 
-```bash
-# Criar ambiente virtual na raiz do projeto
-python -m venv venv
+Análise de eficiência do sistema.
 
-# Ativar ambiente virtual
-# Windows:
-venv\Scripts\activate
-# Linux/macOS:
-source venv/bin/activate
+Mapas de calor (Heatmap) para identificar horários de pico.
 
-# Instalar todas as dependências
-pip install -r requirements.txt
-```
+Comparativos mensais e anuais.
 
-### 3️⃣ Executar o Backend (API)
+4. Central de Monitoramento (Alertas)
 
-```bash
-# Executar API (com ambiente virtual ativo)
-cd backend
-uvicorn main:app --reload
-```
+Detecção automática de anomalias (Déficit de produção, falhas de inversor).
 
-A API estará disponível em: `http://127.0.0.1:8000`
+Classificação de incidentes por severidade (Crítico, Moderado, Informativo).
 
-### 4️⃣ Executar o Frontend (Painel Admin)
+Recomendações automáticas baseadas no tipo de alerta.
 
-**Em um novo terminal (com o mesmo ambiente virtual):**
+Histórico completo de incidentes.
 
-```bash
-# Ativar ambiente virtual
-# Windows:
-venv\Scripts\activate
-# Linux/macOS:
-source venv/bin/activate
+5. Gestão de Dados (Exportação)
 
-# Executar aplicação Streamlit
-cd painel_admin
-streamlit run Home.py
-```
+Pré-visualização de dados antes do download.
 
-A aplicação estará disponível em: `http://localhost:8501`
+Suporte a múltiplos formatos: CSV, Excel (XLSX), JSON e PDF.
 
-## 🧭 Navegação do Sistema
+Padronização automática de colunas para facilitar a leitura externa.
 
-### 📱 Páginas Principais
-1. **🏠 Home** - Visão geral do sistema e navegação rápida
-2. **🔋 Simulador** - Simulação interativa de energia solar
-3. **👤 Cadastrar Usuário** - Gerenciamento de usuários do sistema
-4. **📊 Relatórios** - Relatórios avançados e análises detalhadas
-5. **📥 Exportação** - Exportação de dados em múltiplos formatos
-6. **🚨 Alertas** - Sistema de monitoramento e alertas inteligentes
-7. **🛠️ Ajustes** - Configurações administrativas e backup
+Estrutura do Projeto
 
-### 🔧 Menu Lateral
-- **Login/Logout** - Controle de acesso ao sistema
-- **Navegação Rápida** - Acesso direto a todas as funcionalidades
-- **Status do Usuário** - Informações da sessão atual
-
-## 👤 Acesso de Teste
-
-**Credenciais padrão:**
-- **Usuário:** `admin`
-- **Senha:** `admin123`
-
-💡 **Dica:** Você pode usar essas credenciais iniciais ou cadastrar novos usuários através da página "Cadastrar Usuário" no menu lateral.
-
-## 🏗️ Estrutura do Projeto
-
-```
 projeto_solar/
-├── backend/                 # API FastAPI
-│   ├── main.py             # Aplicação principal
-│   ├── models.py           # Modelos de dados
-│   ├── database.py         # Configuração do banco
-│   └── auth.py             # Autenticação
-├── painel_admin/           # Frontend Streamlit
-│   ├── Home.py            # Página principal
-│   ├── pages/             # Páginas da aplicação
-│   │   ├── 1_Simulador.py # Simulação de energia
-│   │   ├── 2_Cadastrar_Usuario.py # Cadastro de usuários
-│   │   ├── 3_Relatorios.py # Relatórios avançados
-│   │   ├── 4_Exportacao.py # Exportação de dados
-│   │   ├── 5_Alertas.py   # Sistema de alertas
-│   │   └── Ajustes.py     # Configurações administrativas
-│   ├── shared.py          # Funções compartilhadas
-│   ├── utils.py           # Utilitários para relatórios
-│   ├── alertas.py         # Sistema de alertas
-│   ├── email_utils.py     # Utilitários para email
-│   ├── notificacoes.py    # Sistema de notificações
-│   ├── usuarios.yaml      # Dados dos usuários
-│   ├── painel_admin/      # Configurações do sistema
-│   │   ├── configuracoes.json # Configurações gerais
-│   │   └── logs/          # Logs do sistema
-│   └── reset_admin.py     # Utilitário para reset de admin
-├── requirements.txt       # Dependências do projeto
-└── README.md              # Este arquivo
-```
+├── backend/                 # API e Lógica de Negócios
+│   ├── main.py             # Ponto de entrada da API
+│   ├── models.py           # Modelos de dados (Schemas)
+│   └── auth.py             # Lógica de autenticação JWT
+├── painel_admin/           # Frontend (Streamlit)
+│   ├── Home.py             # Tela de Login e Dashboard Principal
+│   ├── .streamlit/         # Configurações de tema e UI
+│   ├── pages/              # Módulos do Sistema
+│   │   ├── 1_Simulador.py  # Ferramenta de Simulação
+│   │   ├── 2_Cadastrar.py  # Gestão de Usuários
+│   │   ├── 3_Relatorios.py # BI e Analytics
+│   │   ├── 4_Exportacao.py # Central de Downloads
+│   │   └── 5_Alertas.py    # Monitoramento de Saúde
+│   ├── shared.py           # Estilos CSS e funções globais
+│   ├── alertas.py          # Lógica do sistema de alertas
+│   └── usuarios.yaml       # Banco de dados local de usuários (Hash)
+└── requirements.txt        # Lista de dependências
 
-## 🔧 Tecnologias Utilizadas
 
-### Frontend
-- **Streamlit** - Framework web para Python
-- **streamlit-authenticator** - Autenticação
-- **PyYAML** - Manipulação de arquivos YAML
-- **pandas** - Manipulação de dados
-- **numpy** - Computação numérica
-- **plotly** - Gráficos interativos avançados
-- **openpyxl** - Exportação para Excel
-- **fpdf** - Geração de relatórios PDF
-- **matplotlib** - Gráficos para relatórios PDF
+Guia de Instalação e Execução
 
-### Backend
-- **FastAPI** - Framework web moderno para APIs
-- **SQLAlchemy** - ORM para banco de dados
-- **SQLite** - Banco de dados
+Siga os passos abaixo para rodar o projeto em sua máquina local.
 
-### Sistema de Alertas
-- **SMTP** - Envio de emails para notificações
-- **JSON** - Configurações do sistema
-- **logging** - Sistema de logs
+Pré-requisitos
 
-## 🔐 Observações Técnicas
+Python 3.9 ou superior instalado.
 
-- 🔒 **Segurança:** Senhas armazenadas de forma criptografada no arquivo `usuarios.yaml`
-- 🎭 **Sessão:** Controle de sessão implementado com `st.session_state`
-- 🚪 **Logout:** Remoção completa de todas as chaves da sessão
-- 🛡️ **Restrições:** Acesso às páginas limitado apenas a usuários autenticados
-- 🌐 **Ambiente Único:** Um único ambiente virtual é suficiente, pois não há conflitos entre dependências
-- 📊 **Relatórios:** Gráficos interativos com Plotly e exportação em múltiplos formatos
-- 🚨 **Alertas:** Sistema inteligente de monitoramento com notificações por email
-- 📥 **Exportação:** Suporte completo para CSV, Excel, JSON e PDF com gráficos inclusos
-- 📧 **Email:** Sistema SMTP configurável para notificações automáticas
-- 🔧 **Configurações:** Arquivos JSON para configurações centralizadas do sistema
-- 📝 **Logs:** Sistema de logging para rastreamento de atividades
+Git instalado.
 
-## 📦 Dependências
+1. Clonar o Repositório
 
-### Ambiente Único (`requirements.txt`)
-```
-# Backend (FastAPI + JWT + banco de dados)
-fastapi
-uvicorn[standard]
-sqlalchemy
-python-jose[cryptography]
-passlib[bcrypt]
+Abra seu terminal ou CMD e execute:
 
-# Painel administrativo (Streamlit + autenticação)
-streamlit
-streamlit-authenticator
-requests
+git clone [https://github.com/ArissonSilva13/projeto_solar.git](https://github.com/ArissonSilva13/projeto_solar.git)
+cd projeto_solar
 
-# Simulador (dados e gráficos)
-pandas
-numpy
-matplotlib
-plotly  # Para gráficos interativos nos relatórios
-kaleido  # Para exportação de gráficos plotly
 
-# Sistema de Exportação
-openpyxl  # Para exportação Excel
-fpdf      # Para geração de relatórios PDF
+2. Configurar o Ambiente Virtual
 
-# Sistema de Alertas e Notificações
-pyyaml    # Para manipulação de arquivos YAML
-smtplib   # Para envio de emails (built-in)
-email     # Para formatação de emails (built-in)
+É altamente recomendado usar um ambiente virtual para isolar as dependências.
 
-# Configurações e utilitários
-json      # Para configurações (built-in)
-logging   # Para sistema de logs (built-in)
-io        # Para manipulação de arquivos (built-in)
-datetime  # Para datas e horários (built-in)
-```
+Windows:
 
-## 📊 Tipos de Relatórios Disponíveis
+python -m venv venv
+venv\Scripts\activate
 
-### 1. 📊 Resumo Geral
-- Métricas principais de produção e consumo
-- Gráficos de linha mostrando tendências
-- Gráficos de barras para excedente diário
-- Visão geral da performance do sistema
 
-### 2. 🔍 Análise Detalhada
-- Gráficos de área empilhada
-- Análise de eficiência do sistema
-- Produção média por dia da semana
-- Scatter plot de performance
+Linux/macOS:
 
-### 3. 📈 Comparativo Mensal
-- Comparação entre meses
-- Evolução da economia ao longo do tempo
-- Tendências históricas
-- Análise de crescimento
+python3 -m venv venv
+source venv/bin/activate
 
-### 4. ⚡ Eficiência e Performance
-- Gauge de eficiência em tempo real
-- Heatmap de produção por semana e dia
-- Análise de performance detalhada
-- Indicadores de qualidade do sistema
 
-## 📥 Sistema de Exportação
+3. Instalar Dependências
 
-### 💾 Formatos Disponíveis
-- **CSV**: Dados em formato tabular para análise externa
-- **Excel**: Planilhas formatadas com múltiplas abas
-- **JSON**: Dados estruturados para integração com outros sistemas
-- **PDF**: Relatórios completos com gráficos e análises
+Com o ambiente virtual ativado, instale as bibliotecas necessárias:
 
-### 🔧 Funcionalidades de Exportação
-- **Períodos Personalizáveis**: Escolha de datas específicas
-- **Configurações Flexíveis**: Opção de incluir/excluir gráficos
-- **Nomes Automáticos**: Arquivos com timestamp automático
-- **Resumos Estatísticos**: Métricas calculadas automaticamente
+pip install -r requirements.txt
 
-## 🚨 Sistema de Alertas
 
-### 📋 Tipos de Alertas
-- **Críticos**: Déficits energéticos severos (⚠️ vermelho)
-- **Moderados**: Déficits energéticos leves (⚠️ amarelo)
-- **Atenção**: Situações que requerem monitoramento (ℹ️ azul)
+4. Executar a Aplicação
 
-### 📧 Notificações por Email
-- **Configuração SMTP**: Suporte completo para servidores de email
-- **Templates HTML**: Emails formatados profissionalmente
-- **Anexos**: Possibilidade de incluir relatórios nos emails
-- **Testes de Configuração**: Verificação automática das configurações
+Para iniciar o painel administrativo (Frontend):
 
-### 🔍 Análise Inteligente
-- **Thresholds Configuráveis**: Limites personalizáveis para cada tipo de alerta
-- **Análise de Tendências**: Identificação de padrões problemáticos
-- **Recomendações Automáticas**: Sugestões baseadas nos dados
-- **Histórico de Alertas**: Registro completo para análise posterior
+streamlit run painel_admin/Home.py
+
+
+O sistema abrirá automaticamente no seu navegador no endereço: http://localhost:8501
+
+Credenciais de Acesso
+
+Para o primeiro acesso, utilize as credenciais de administrador padrão (caso configuradas) ou edite o arquivo painel_admin/usuarios.yaml seguindo o modelo de hash.
+
+Se o arquivo de usuários não existir, o sistema criará um novo automaticamente na primeira execução ou permitirá o cadastro via código inicial.
+
+Tecnologias Utilizadas
+
+Linguagem: Python 3.10+
+
+Frontend: Streamlit
+
+Visualização de Dados: Plotly Express / Graph Objects
+
+Manipulação de Dados: Pandas / NumPy
+
+Autenticação: Streamlit-Authenticator
+
+Exportação: OpenPyXL (Excel), FPDF (PDF)
+
+Contribuição
+
+Faça um Fork do projeto.
+
+Crie uma Branch para sua Feature (git checkout -b feature/NovaFeature).
+
+Faça o Commit (git commit -m 'Add: Nova Feature').
+
+Faça o Push (git push origin feature/NovaFeature).
+
+Abra um Pull Request.
+
+Desenvolvido por Arisson Silva
