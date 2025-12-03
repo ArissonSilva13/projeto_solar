@@ -181,4 +181,3 @@ Faça o Push (git push origin feature/NovaFeature).
 
 Abra um Pull Request.
 
-Desenvolvido por Arisson Silva
