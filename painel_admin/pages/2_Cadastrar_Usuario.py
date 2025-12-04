@@ -25,7 +25,7 @@ except ImportError:
 from shared import aplicar_estilo_solar
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Gestão de Usuários", page_icon="👤", layout="wide")
+st.set_page_config(page_title="Gestão de Usuários", page_icon="⚡", layout="wide")
 aplicar_estilo_solar()
 
 # --- CONSTANTES ---
@@ -37,11 +37,23 @@ if not os.path.exists("painel_admin"):
 
 # --- VALIDAÇÃO DE LOGIN ---
 if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    st.warning("🔒 Acesso restrito. Por favor, faça login.")
+    st.error(" Acesso restrito. Por favor, faça login.")
     st.stop()
 
-st.title("👤 Gestão de Acesso e Usuários")
-st.markdown("Cadastre novos administradores e visualize a equipe ativa.")
+# --- HELPER PARA ÍCONES SVG ---
+def render_icon(svg_path, title, color="#1E3A8A"):
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            {svg_path}
+        </svg>
+        <h4 style="margin: 0; color: #1E3A8A; font-weight: 600; font-family: sans-serif;">{title}</h4>
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- CABEÇALHO ---
+st.title("Gestão de Acesso")
+st.markdown("Administração de credenciais e visualização da equipe ativa.")
 
 notificacao_system = NotificacaoRealTime()
 
@@ -70,7 +82,7 @@ def get_tabela_usuarios(dados):
         })
     return pd.DataFrame(lista)
 
-# --- VERIFICAÇÃO INICIAL (Mantendo sua lógica de alertas) ---
+# --- VERIFICAÇÃO INICIAL ---
 def verificar_alertas_sistema():
     if not os.path.exists(ARQUIVO_USUARIOS):
         notificacao_system.adicionar_notificacao(
@@ -86,7 +98,6 @@ def verificar_alertas_sistema():
                 'sistema', 'Sem Usuários', 'Crie um usuário imediatamente.', 'media'
             )
         elif num_usuarios > 10:
-             # Apenas log silencioso ou warning leve
              pass 
              
     except Exception as e:
@@ -99,30 +110,32 @@ col_cadastro, col_lista = st.columns([1, 1.5], gap="large")
 
 # === COLUNA 1: FORMULÁRIO DE CADASTRO ===
 with col_cadastro:
-    st.subheader("✨ Novo Cadastro")
+    # SVG: User Plus (Novo Cadastro)
+    render_icon('<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line>', "Novo Usuário")
     
     # Card visual para o formulário
     with st.container(border=True):
-        st.markdown("Preencha os dados abaixo para conceder acesso.")
+        st.caption("Preencha os dados para conceder acesso ao sistema.")
         
         nome = st.text_input("Nome Completo", placeholder="Ex: João Silva")
         email = st.text_input("E-mail Corporativo", placeholder="joao@solar.com")
         
         c1, c2 = st.columns(2)
-        usuario = c1.text_input("Usuário (Login)", placeholder="joaosilva")
+        usuario = c1.text_input("Login", placeholder="joaosilva")
         senha = c2.text_input("Senha Provisória", type="password")
         
         st.markdown("---")
         
-        if st.button("✅ Cadastrar Usuário", type="primary", use_container_width=True):
+        # Botão sem emoji, texto limpo
+        if st.button("Cadastrar Usuário", type="primary", use_container_width=True):
             if not nome or not email or not usuario or not senha:
-                st.warning("⚠️ Todos os campos são obrigatórios.")
+                st.warning("Todos os campos são obrigatórios.")
             else:
                 dados = carregar_dados_usuarios()
                 dados.setdefault("usernames", {})
 
                 if usuario in dados["usernames"]:
-                    st.error("❌ Este nome de usuário já está em uso.")
+                    st.error("Este nome de usuário já está em uso.")
                 else:
                     try:
                         hashed_pwd = Hasher([senha]).generate()[0]
@@ -134,10 +147,9 @@ with col_cadastro:
                         
                         salvar_usuario(dados)
                         
-                        st.success(f"🎉 Usuário **{usuario}** cadastrado com sucesso!")
-                        st.balloons()
+                        st.success(f"Usuário {usuario} cadastrado com sucesso.")
                         
-                        # Notificação
+                        # Notificação silenciosa
                         notificacao_system.adicionar_notificacao(
                             'usuario_criado',
                             'Novo Acesso',
@@ -145,28 +157,27 @@ with col_cadastro:
                             'baixa'
                         )
                         
-                        # Limpa campos (gambiarra visual do streamlit forçando rerun)
-                        # st.rerun() # Opcional: descomente se quiser limpar o form
-                        
                     except Exception as e:
                         st.error(f"Erro ao salvar: {e}")
 
 # === COLUNA 2: LISTA DE USUÁRIOS ===
 with col_lista:
-    st.subheader("👥 Equipe Cadastrada")
+    # SVG: Users (Equipe)
+    render_icon('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>', "Equipe Cadastrada")
     
     dados_atuais = carregar_dados_usuarios()
     df_users = get_tabela_usuarios(dados_atuais)
     
     if not df_users.empty:
-        # Métricas rápidas
-        k1, k2 = st.columns(2)
-        k1.metric("Total de Usuários", len(df_users))
-        k2.metric("Status do Sistema", "Online", delta="Seguro")
+        # Métricas rápidas em card
+        with st.container(border=True):
+            k1, k2 = st.columns(2)
+            k1.metric("Total de Usuários", len(df_users))
+            k2.metric("Status do Sistema", "Online", delta="Seguro")
         
-        st.markdown("") # Espaçamento
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        # Tabela Bonita
+        # Tabela Profissional
         st.dataframe(
             df_users,
             use_container_width=True,
@@ -174,7 +185,7 @@ with col_lista:
             column_config={
                 "Usuário": st.column_config.TextColumn(
                     "Login",
-                    help="Nome usado para entrar no sistema",
+                    help="ID de acesso",
                     width="medium"
                 ),
                 "Nome": st.column_config.TextColumn(
@@ -185,17 +196,16 @@ with col_lista:
                     "Contato"
                 ),
                 "Status": st.column_config.Column(
-                    "Status",
+                    "Situação",
                     width="small"
                 )
             }
         )
         
-        with st.expander("ℹ️ Informações de Segurança"):
+        with st.expander("Informações de Segurança"):
             st.info("""
-            - As senhas são armazenadas com criptografia (Hash).
-            - Não é possível visualizar a senha atual de um usuário.
-            - Para alterar uma senha, é necessário contatar o suporte de TI (ou editar o YAML manualmente se tiver acesso ao servidor).
+            As senhas são armazenadas utilizando criptografia hash unidirecional. 
+            Não é possível recuperar senhas antigas, apenas redefini-las via administrador.
             """)
             
     else:
@@ -203,6 +213,10 @@ with col_lista:
 
 # --- RODAPÉ DA SIDEBAR ---
 st.sidebar.divider()
-notificacao_system.exibir_painel_notificacoes()
-notificacao_system.auto_refresh_alertas()
-notificacao_system.limpar_notificacoes_antigas()
+# Tenta renderizar painel de notificações se existir
+try:
+    notificacao_system.exibir_painel_notificacoes()
+    notificacao_system.auto_refresh_alertas()
+    notificacao_system.limpar_notificacoes_antigas()
+except:
+    pass
