@@ -1,183 +1,139 @@
-SolarTrack - Sistema de Gestão de Energia Fotovoltaica
+SolarTrack v2.1 - Enterprise Solar Intelligence
 
-Descrição do Projeto
+Visão Geral
 
-O SolarTrack é uma plataforma de Business Intelligence (BI) e monitoramento para sistemas de energia solar. Desenvolvida em Python utilizando Streamlit para o frontend e FastAPI para o backend, a aplicação oferece uma interface profissional para simulação de geração de energia, análise financeira (ROI), monitoramento de alertas em tempo real e gestão de usuários.
+O SolarTrack é uma solução completa de Business Intelligence (BI) e monitoramento para gestão de ativos fotovoltaicos. Projetado com foco em UX Corporativa, o sistema abandona interfaces genéricas em favor de um design limpo, vetorial e orientado a dados.
 
-O sistema foi projetado para oferecer uma experiência de "SaaS" (Software as a Service), com painéis interativos, gráficos dinâmicos (Plotly) e exportação de dados em múltiplos formatos.
+Esta versão (v2.1 Enterprise) introduz uma arquitetura modular robusta, sistema de alertas em tempo real e relatórios financeiros detalhados (ROI, Payback, VPL).
 
 Funcionalidades Principais
 
-1. Autenticação e Segurança
+Interface & UX
 
-Sistema de login seguro com hash de senhas.
+Design Vetorial: Ícones SVG nítidos e identidade visual coesa (Azul/Laranja).
 
-Gestão de sessão persistente.
+Navegação Intuitiva: Estrutura de sidebar limpa e navegação por cards.
 
-Controle de acesso (apenas usuários autenticados acessam o painel).
+Responsividade: Layout adaptável (wide mode) para grandes telas de monitoramento.
 
-Interface de login moderna com identidade visual corporativa.
+Módulos do Sistema
 
-2. Simulador Solar
+Simulador de Produção
 
-Projeção de geração de energia baseada em intensidade solar e consumo.
+Projeção energética baseada em irradiação e consumo.
 
-Cálculo financeiro automático: Economia diária, mensal e anual.
+Análise financeira automática (Economia mensal/anual).
 
-Estimativa de Payback (Tempo de Retorno) e ROI em 25 anos.
+Gestão de Acesso
 
-Visualização gráfica da curva de produção x consumo.
+Controle de usuários com hash seguro (SHA-256).
 
-3. Relatórios e BI
+Painel administrativo para cadastro de equipe.
 
-Dashboard interativo com filtros de período (7, 30, 90 dias ou personalizado).
+Business Intelligence (BI)
 
-Análise de eficiência do sistema.
+Dashboards interativos com Plotly.
 
-Mapas de calor (Heatmap) para identificar horários de pico.
+Heatmaps de eficiência e curvas de carga.
 
-Comparativos mensais e anuais.
+Central de Monitoramento
 
-4. Central de Monitoramento (Alertas)
+Detecção de anomalias (Déficits críticos).
 
-Detecção automática de anomalias (Déficit de produção, falhas de inversor).
+Log de incidentes auditável.
 
-Classificação de incidentes por severidade (Crítico, Moderado, Informativo).
+Exportação de Dados
 
-Recomendações automáticas baseadas no tipo de alerta.
+Extração em múltiplos formatos: CSV, Excel, JSON e PDF.
 
-Histórico completo de incidentes.
+Tratamento automático de metadados.
 
-5. Gestão de Dados (Exportação)
+Configurações do Sistema
 
-Pré-visualização de dados antes do download.
+Ajustes globais de tema, idioma e SMTP (E-mail).
 
-Suporte a múltiplos formatos: CSV, Excel (XLSX), JSON e PDF.
+Logs de auditoria do sistema.
 
-Padronização automática de colunas para facilitar a leitura externa.
+Arquitetura do Projeto
 
-Estrutura do Projeto
-
-graph TD
-    root[projeto_solar/]
-    style root fill:#FF8C00,stroke:#333,stroke-width:2px,color:white
-
-    %% Backend Branch
-    root --> backend[backend/]
-    style backend fill:#1E3A8A,stroke:#333,stroke-width:1px,color:white
-    
-    backend --> b_main[main.py]
-    backend --> b_models[models.py]
-    backend --> b_auth[auth.py]
-
-    %% Frontend Branch
-    root --> painel[painel_admin/]
-    style painel fill:#1E3A8A,stroke:#333,stroke-width:1px,color:white
-    
-    painel --> p_home[Home.py]
-    painel --> p_st[.streamlit/]
-    painel --> p_pages[pages/]
-    style p_pages fill:#10B981,stroke:#333,stroke-width:1px,color:white
-    
-    painel --> p_shared[shared.py]
-    painel --> p_alert[alertas.py]
-    painel --> p_yaml[usuarios.yaml]
-
-    %% Pages Sub-branch
-    p_pages --> pg1[1_Simulador.py]
-    p_pages --> pg2[2_Cadastrar.py]
-    p_pages --> pg3[3_Relatorios.py]
-    p_pages --> pg4[4_Exportacao.py]
-    p_pages --> pg5[5_Alertas.py]
-
-    %% Root Files
-    root --> req[requirements.txt]
+projeto_solar/
+├── backend/                 # API e Lógica de Negócios
+│   ├── main.py             # Ponto de entrada da API
+│   ├── models.py           # Modelos de dados (Schemas)
+│   └── auth.py             # Lógica de autenticação JWT
+│
+├── painel_admin/           # Frontend (Streamlit)
+│   ├── Home.py             # Tela de Login e Dashboard Principal
+│   ├── .streamlit/         # Configurações de tema e UI
+│   │   └── config.toml
+│   │
+│   ├── pages/              # Módulos do Sistema
+│   │   ├── 1_Simulador.py  # Ferramenta de Simulação
+│   │   ├── 2_Cadastrar.py  # Gestão de Usuários
+│   │   ├── 3_Relatorios.py # BI e Analytics
+│   │   ├── 4_Exportacao.py # Central de Downloads
+│   │   ├── 5_Alertas.py    # Monitoramento de Saúde
+│   │   └── Ajustes.py      # Configurações Gerais
+│   │
+│   ├── shared.py           # Estilos CSS e funções globais
+│   ├── alertas.py          # Lógica do sistema de alertas
+│   ├── utils.py            # Utilitários de dados
+│   ├── notificacoes.py     # Sistema de notificações
+│   │
+│   ├── usuarios.yaml       # Banco de dados local de usuários (Hash)
+│   ├── configuracoes.json  # Preferências salvas
+│   └── logs/               # Registros de atividade
+│
+└── requirements.txt        # Lista de dependências
 
 
-Guia de Instalação e Execução
-
-Siga os passos abaixo para rodar o projeto em sua máquina local.
+Guia de Instalação
 
 Pré-requisitos
 
-Python 3.9 ou superior instalado.
+Python 3.9 ou superior.
 
-Git instalado.
+Git.
 
-1. Clonar o Repositório
+1. Clonar e Preparar
 
-Abra seu terminal ou CMD e execute:
-
-git clone [https://github.com/ArissonSilva13/projeto_solar.git](https://github.com/ArissonSilva13/projeto_solar.git)
+git clone [https://github.com/SeuUsuario/projeto_solar.git](https://github.com/SeuUsuario/projeto_solar.git)
 cd projeto_solar
 
-
-
-2. Configurar o Ambiente Virtual
-
-É altamente recomendado usar um ambiente virtual para isolar as dependências.
-
-Windows:
-
+# Criar ambiente virtual (Recomendado)
 python -m venv venv
-venv\Scripts\activate
+# Ativar (Windows): venv\Scripts\activate
+# Ativar (Linux/Mac): source venv/bin/activate
 
 
-
-Linux/macOS:
-
-python3 -m venv venv
-source venv/bin/activate
-
-
-
-3. Instalar Dependências
-
-Com o ambiente virtual ativado, instale as bibliotecas necessárias:
+2. Instalar Dependências
 
 pip install -r requirements.txt
 
 
-
-4. Executar a Aplicação
-
-Para iniciar o painel administrativo (Frontend):
+3. Iniciar o Sistema
 
 streamlit run painel_admin/Home.py
 
 
+O painel será aberto em: http://localhost:8501
 
-O sistema abrirá automaticamente no seu navegador no endereço: http://localhost:8501
+Credenciais Iniciais
 
-Credenciais de Acesso
+Na primeira execução, se o arquivo usuarios.yaml não existir, você pode criar um usuário administrador através da aba "Solicitar Acesso" na tela de login.
 
-Para o primeiro acesso, utilize as credenciais de administrador padrão (caso configuradas) ou edite o arquivo painel_admin/usuarios.yaml seguindo o modelo de hash.
+Stack Tecnológica
 
-Se o arquivo de usuários não existir, o sistema criará um novo automaticamente na primeira execução ou permitirá o cadastro via código inicial.
+Core: Python 3.10+
 
-Tecnologias Utilizadas
+Frontend: Streamlit Framework
 
-Linguagem: Python 3.10+
+Analytics: Plotly Express & Graph Objects
 
-Frontend: Streamlit
+Data Processing: Pandas / NumPy
 
-Visualização de Dados: Plotly Express / Graph Objects
+Security: Streamlit-Authenticator
 
-Manipulação de Dados: Pandas / NumPy
+Reports: OpenPyXL (Excel) / FPDF (PDF)
 
-Autenticação: Streamlit-Authenticator
-
-Exportação: OpenPyXL (Excel), FPDF (PDF)
-
-Contribuição
-
-Faça um Fork do projeto.
-
-Crie uma Branch para sua Feature (git checkout -b feature/NovaFeature).
-
-Faça o Commit (git commit -m 'Add: Nova Feature').
-
-Faça o Push (git push origin feature/NovaFeature).
-
-Abra um Pull Request.
-
+© 2025 SolarTrack Systems. Desenvolvido para 
