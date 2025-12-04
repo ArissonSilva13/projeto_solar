@@ -1,21 +1,8 @@
-import yaml
+import streamlit as st
 import streamlit_authenticator as stauth
-import streamlit as st  # <--- ADICIONE ESTE IMPORT (Necessário para o CSS)
+import yaml
+import os
 
-# --- SUA FUNÇÃO DE LOGIN (MANTENHA ELA AQUI) ---
-def carregar_autenticador():
-    with open("usuarios.yaml") as file:
-        credentials = yaml.safe_load(file)
-
-    authenticator = stauth.Authenticate(
-        credentials,
-        "monitoramento_solar",
-        "abc123",
-        cookie_expiry_days=1
-    )
-    return authenticator
-
-# --- A NOVA FUNÇÃO DE ESTILO (ADICIONE DAQUI PARA BAIXO) ---
 def aplicar_estilo_solar():
     """
     Função para injetar CSS personalizado.
@@ -63,3 +50,27 @@ def aplicar_estilo_solar():
         }
         </style>
     """, unsafe_allow_html=True)
+
+def carregar_autenticador():
+    # --- CORREÇÃO DO CAMINHO (ABSOLUTO DINÂMICO) ---
+    # 1. Descobre onde o arquivo 'shared.py' está salvo
+    diretorio_atual = os.path.dirname(__file__)
+    
+    # 2. Monta o caminho para o usuarios.yaml na mesma pasta
+    caminho_arquivo = os.path.join(diretorio_atual, "usuarios.yaml")
+    
+    # 3. Tenta carregar. Se falhar, tenta o caminho local de desenvolvimento como fallback
+    if not os.path.exists(caminho_arquivo):
+        # Fallback para execução local simples se necessário
+        caminho_arquivo = "painel_admin/usuarios.yaml"
+    
+    with open(caminho_arquivo) as file:
+        credentials = yaml.safe_load(file)
+
+    authenticator = stauth.Authenticate(
+        credentials,
+        "monitoramento_solar",
+        "abc123",
+        cookie_expiry_days=1
+    )
+    return authenticator
